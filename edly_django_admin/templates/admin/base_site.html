@@ -1,18 +1,39 @@
 {% extends "admin/base.html" %}
+{% load i18n admin_urls static %}
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
 
-{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin')
-}}{% endblock %}
-
+<!-- Edly: Adding extrastyle for django-admin-revamp -->
 {% block extrastyle %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/custom_admin.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/custom_admin.css' %}">
 {% endblock %}
 
 
 {% block branding %}
-<div id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></div>
-{% if user.is_anonymous %}
-{% include "admin/color_theme_toggle.html" %}
-{% endif %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></h1>
 {% endblock %}
 
 {% block nav-global %}{% endblock %}
+
+{% block userlinks %}
+    {% if site_url %}
+        <a href="{{ site_url }}">{% trans 'View site' as tmsg%}{{tmsg|force_escape}}</a> /
+    {% endif %}
+    {% if user.is_active and user.is_staff %}
+        {% url 'django-admindocs-docroot' as docsroot %}
+        {% if docsroot %}
+            <a href="{{ docsroot }}">{% trans 'Documentation' as tmsg%}{{tmsg|force_escape}}</a> /
+        {% endif %}
+    {% endif %}
+
+    <a href="{% url 'logout' %}">{% trans 'Log out' as tmsg%}{{tmsg|force_escape}}</a>
+
+
+{% endblock %}
+
+{% block extrahead %}
+<script src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+{% endblock %}
+
+{% block messages %}{{ block.super }}
+    {% include "survey_report/admin_banner.html" %}
+{% endblock %}
